@@ -58,7 +58,7 @@ func Layout(c *gin.Context, content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</a><ul class=\"dropdown-menu\"><li><a class=\"dropdown-item\" href=\"/admin\"><i class=\"fas fa-tachometer-alt me-2\"></i>Admin Dashboard</a></li><li><hr class=\"dropdown-divider\"></li><li><a class=\"dropdown-item\" href=\"/logout\"><i class=\"fas fa-sign-out-alt me-2\"></i>Logout</a></li></ul></li></ul></div></header><div class=\"container-fluid\"><div class=\"row g-0\"><!-- Sidebar --><div class=\"col-md-3 col-lg-2 d-md-block bg-light sidebar collapse\"><div class=\"position-sticky pt-3\"><h6 class=\"sidebar-heading px-3 mt-4 mb-1 text-muted\"><span>S3 STORAGE</span></h6><ul class=\"nav flex-column\"><li class=\"nav-item\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</a><ul class=\"dropdown-menu\"><li><form method=\"POST\" action=\"/ui/logout\" style=\"margin: 0;\"><button type=\"submit\" class=\"dropdown-item\"><i class=\"fas fa-sign-out-alt me-2\"></i>Logout</button></form></li></ul></li></ul></div></header><div class=\"container-fluid\"><div class=\"row g-0\"><!-- Sidebar --><div class=\"col-md-3 col-lg-2 d-md-block bg-light sidebar collapse\"><div class=\"position-sticky pt-3\"><h6 class=\"sidebar-heading px-3 mt-4 mb-1 text-muted\"><span>S3 STORAGE</span></h6><ul class=\"nav flex-column\"><li class=\"nav-item\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -103,7 +103,7 @@ func Layout(c *gin.Context, content templ.Component) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", time.Now().Year()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/layout/layout.templ`, Line: 205, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/layout/layout.templ`, Line: 201, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -116,7 +116,7 @@ func Layout(c *gin.Context, content templ.Component) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(version.VERSION_NUMBER)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/layout/layout.templ`, Line: 205, Col: 100}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/layout/layout.templ`, Line: 201, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

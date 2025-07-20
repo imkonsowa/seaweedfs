@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/seaweedfs/seaweedfs/weed/s3api"
 	"github.com/seaweedfs/seaweedfs/weed/s3api/ui/view/app"
@@ -33,49 +35,83 @@ func NewConsoleHandlers(s3Ops *s3api.S3Operations, adminCred s3api.ConsoleCreden
 
 // SetupRoutes configures all the routes for the console
 func (h *ConsoleHandlers) SetupRoutes(r *gin.Engine) {
-	// Console UI routes
+	// Setup session middleware
+	store := cookie.NewStore([]byte("seaweedfs-s3-console-secret-key-change-in-production"))
+	store.Options(sessions.Options{
+		Path:     "/",
+		MaxAge:   3600, // 1 hour
+		HttpOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+	})
+	r.Use(sessions.Sessions("seaweedfs-console", store))
+
+	// Public routes (no authentication required)
 	ui := r.Group("/ui")
+	ui.GET("/login", h.handleLogin)
+	ui.POST("/login", h.handleLoginPost)
+	ui.POST("/logout", h.handleLogout)
 
-	// Apply authentication middleware
-	ui.Use(h.requireAuthentication())
-
-	// Main pages
-	ui.GET("", h.handleOverview)
-	ui.GET("/", h.handleOverview)
-	ui.GET("/buckets", h.handleBuckets)
-	ui.GET("/buckets/:bucketName", h.handleBucketBrowser)
-	ui.GET("/settings", h.handleSettings)
-	ui.GET("/api-status", h.handleAPIStatus)
-
-	// API endpoints
-	api := ui.Group("/api")
+	// Protected routes (authentication required)
+	protected := ui.Group("")
+	protected.Use(h.requireAuthentication())
 	{
-		// Bucket management
-		api.GET("/buckets", h.handleListBucketsAPI)
-		api.POST("/buckets", h.handleCreateBucketAPI)
-		api.DELETE("/buckets/:bucketName", h.handleDeleteBucketAPI)
+		// Main pages
+		protected.GET("", h.handleOverview)
+		protected.GET("/", h.handleOverview)
+		protected.GET("/buckets", h.handleBuckets)
+		protected.GET("/buckets/:bucketName", h.handleBucketBrowser)
+		protected.GET("/settings", h.handleSettings)
+		protected.GET("/api-status", h.handleAPIStatus)
 
-		// Bucket browsing and file operations
-		api.GET("/buckets/:bucketName/browse", h.handleBrowseBucketAPI)
-		api.POST("/buckets/:bucketName/folders", h.handleCreateFolderAPI)
-		api.POST("/buckets/:bucketName/upload", h.handleUploadAPI)
-		api.DELETE("/buckets/:bucketName/delete", h.handleDeleteObjectAPI)
-		api.GET("/buckets/:bucketName/download", h.handleDownloadAPI)
+		// API endpoints
+		api := protected.Group("/api")
+		{
+			// Bucket management
+			api.GET("/buckets", h.handleListBucketsAPI)
+			api.POST("/buckets", h.handleCreateBucketAPI)
+			api.DELETE("/buckets/:bucketName", h.handleDeleteBucketAPI)
 
-		// System
-		api.GET("/test-connection", h.handleTestConnectionAPI)
+			// Bucket browsing and file operations
+			api.GET("/buckets/:bucketName/browse", h.handleBrowseBucketAPI)
+			api.POST("/buckets/:bucketName/folders", h.handleCreateFolderAPI)
+			api.POST("/buckets/:bucketName/upload", h.handleUploadAPI)
+			api.DELETE("/buckets/:bucketName/delete", h.handleDeleteObjectAPI)
+			api.GET("/buckets/:bucketName/download", h.handleDownloadAPI)
+
+			// System
+			api.GET("/test-connection", h.handleTestConnectionAPI)
+		}
 	}
 }
 
-// requireAuthentication middleware ensures the console admin identity is authenticated
+// requireAuthentication middleware ensures the user is logged in
 func (h *ConsoleHandlers) requireAuthentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// For now, we'll authenticate using the configured admin credentials
-		// In a production system, you might want session-based authentication
+		session := sessions.Default(c)
+		authenticated := session.Get("authenticated")
+
+		if authenticated != true {
+			// For HTMX requests, return 401 so frontend can handle redirect
+			if c.GetHeader("HX-Request") == "true" {
+				c.Header("HX-Redirect", "/ui/login")
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+				c.Abort()
+				return
+			}
+			// For regular requests, redirect to login
+			c.Redirect(http.StatusFound, "/ui/login")
+			c.Abort()
+			return
+		}
+
+		// Get cached identity from session or authenticate
 		if h.identity == nil {
 			identity, err := h.s3Ops.AuthenticateConsole(h.adminCred.AccessKey, h.adminCred.SecretKey)
 			if err != nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Console authentication failed: " + err.Error()})
+				// Clear session and redirect to login
+				session.Clear()
+				session.Save()
+				c.Redirect(http.StatusFound, "/ui/login")
 				c.Abort()
 				return
 			}
@@ -86,6 +122,57 @@ func (h *ConsoleHandlers) requireAuthentication() gin.HandlerFunc {
 		c.Set("console_identity", h.identity)
 		c.Next()
 	}
+}
+
+// handleLogin renders the login page
+func (h *ConsoleHandlers) handleLogin(c *gin.Context) {
+	// If already authenticated, redirect to overview
+	session := sessions.Default(c)
+	if session.Get("authenticated") == true {
+		c.Redirect(http.StatusFound, "/ui/")
+		return
+	}
+
+	errorMessage := c.Query("error")
+	c.Header("Content-Type", "text/html")
+	component := app.Login(errorMessage)
+	component.Render(c.Request.Context(), c.Writer)
+}
+
+// handleLoginPost processes login form submission
+func (h *ConsoleHandlers) handleLoginPost(c *gin.Context) {
+	accessKey := c.PostForm("accessKey")
+	secretKey := c.PostForm("secretKey")
+
+	// Validate credentials
+	if accessKey != h.adminCred.AccessKey || secretKey != h.adminCred.SecretKey {
+		c.Redirect(http.StatusFound, "/ui/login?error=Invalid+credentials")
+		return
+	}
+
+	// Set session
+	session := sessions.Default(c)
+	session.Set("authenticated", true)
+	session.Set("access_key", accessKey)
+	if err := session.Save(); err != nil {
+		c.Redirect(http.StatusFound, "/ui/login?error=Session+error")
+		return
+	}
+
+	// Redirect to overview
+	c.Redirect(http.StatusFound, "/ui/")
+}
+
+// handleLogout clears the session and redirects to login
+func (h *ConsoleHandlers) handleLogout(c *gin.Context) {
+	session := sessions.Default(c)
+	session.Clear()
+	session.Save()
+
+	// Clear cached identity
+	h.identity = nil
+
+	c.Redirect(http.StatusFound, "/ui/login")
 }
 
 // handleOverview renders the overview page
@@ -126,6 +213,13 @@ func (h *ConsoleHandlers) handleBucketBrowser(c *gin.Context) {
 	}
 
 	c.Header("Content-Type", "text/html")
+
+	if c.GetHeader("HX-Request") == "true" {
+		component := app.BucketBrowserCard(browserData)
+		component.Render(c.Request.Context(), c.Writer)
+		return
+	}
+
 	component := layout.Layout(c, app.BucketBrowser(browserData))
 	component.Render(c.Request.Context(), c.Writer)
 }
@@ -382,6 +476,18 @@ func (h *ConsoleHandlers) handleUploadAPI(c *gin.Context) {
 			"count":   uploadedCount,
 			"errors":  uploadErrors,
 		})
+		return
+	}
+
+	if c.GetHeader("HX-Request") == "true" {
+		browserData, err := h.getBucketBrowserData(c, bucketName, currentPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.Header("Content-Type", "text/html")
+		component := app.BucketBrowserCard(browserData)
+		component.Render(c.Request.Context(), c.Writer)
 		return
 	}
 

@@ -1,6 +1,8 @@
 package data
 
 import (
+	"time"
+
 	"github.com/seaweedfs/seaweedfs/weed/s3api"
 )
 

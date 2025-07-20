@@ -107,308 +107,346 @@ func BucketBrowser(data data.BucketBrowserData) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</ol></nav></div><div class=\"btn-toolbar mb-2 mb-md-0\"><div class=\"btn-group me-2\"><button type=\"button\" class=\"btn btn-sm btn-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#uploadModal\"><i class=\"fas fa-cloud-upload-alt me-1\"></i>Upload</button> <button type=\"button\" class=\"btn btn-sm btn-success\" data-bs-toggle=\"modal\" data-bs-target=\"#createFolderModal\"><i class=\"fas fa-folder-plus me-1\"></i>New Folder</button> <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" onclick=\"location.reload()\"><i class=\"fas fa-sync-alt me-1\"></i>Refresh</button></div></div></div><!-- Drag and Drop Upload Zone --><div id=\"dropZone\" class=\"drop-zone mb-4 p-4 border-2 border-dashed rounded text-center\" style=\"border-color: #dee2e6; transition: all 0.3s ease;\"><div class=\"drop-zone-content\"><i class=\"fas fa-cloud-upload-alt fa-3x text-muted mb-3\"></i><h5 class=\"text-muted\">Drag and drop files or folders here to upload</h5><p class=\"text-muted mb-0\">No size limits - upload files of any size<br>or <button type=\"button\" class=\"btn btn-link p-0\" data-bs-toggle=\"modal\" data-bs-target=\"#uploadModal\">click to browse</button></p></div><div class=\"drop-zone-uploading d-none\"><div class=\"spinner-border text-primary\" role=\"status\"><span class=\"visually-hidden\">Uploading...</span></div><h5 class=\"text-primary mt-3\">Uploading files...</h5></div></div><!-- File Browser Table --><div class=\"card file-browser-card\"><div class=\"card-header bg-light\"><div class=\"row align-items-center\"><div class=\"col\"><h6 class=\"card-title mb-0\"><i class=\"fas fa-folder-open me-2\"></i>Contents ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</ol></nav></div><div class=\"btn-toolbar mb-2 mb-md-0\"><div class=\"btn-group me-2\"><button type=\"button\" class=\"btn btn-sm btn-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#uploadModal\"><i class=\"fas fa-cloud-upload-alt me-1\"></i>Upload</button> <button type=\"button\" class=\"btn btn-sm btn-success\" data-bs-toggle=\"modal\" data-bs-target=\"#createFolderModal\"><i class=\"fas fa-folder-plus me-1\"></i>New Folder</button> <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" onclick=\"htmx.ajax(&#39;GET&#39;, window.location.pathname + window.location.search, {target: &#39;.file-browser-card&#39;, swap: &#39;outerHTML&#39;, headers: {&#39;HX-Request&#39;: &#39;true&#39;}})\"><i class=\"fas fa-sync-alt me-1\"></i>Refresh</button></div></div></div><!-- Drag and Drop Upload Zone --><div id=\"dropZone\" class=\"drop-zone mb-4 p-4 border-2 border-dashed rounded text-center\" style=\"border-color: #dee2e6; transition: all 0.3s ease;\"><div class=\"drop-zone-content\"><i class=\"fas fa-cloud-upload-alt fa-3x text-muted mb-3\"></i><h5 class=\"text-muted\">Drag and drop files or folders here to upload</h5><p class=\"text-muted mb-0\">No size limits - upload files of any size<br>or <button type=\"button\" class=\"btn btn-link p-0\" data-bs-toggle=\"modal\" data-bs-target=\"#uploadModal\">click to browse</button></p></div><div class=\"drop-zone-uploading d-none\"><div class=\"spinner-border text-primary\" role=\"status\"><span class=\"visually-hidden\">Uploading...</span></div><h5 class=\"text-primary mt-3\">Uploading files...</h5></div></div><!-- File Browser Table -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.CurrentPath != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"text-muted\">(")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 78, Col: 51}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ")</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		templ_7745c5c3_Err = BucketBrowserCard(data).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</h6></div><div class=\"col-auto\"><small class=\"text-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Upload Modal --><div class=\"modal fade\" id=\"uploadModal\" tabindex=\"-1\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><h5 class=\"modal-title\"><i class=\"fas fa-cloud-upload-alt me-2\"></i>Upload Files</h5><button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\"></button></div><div class=\"modal-body\"><form id=\"uploadForm\" enctype=\"multipart/form-data\"><div class=\"mb-3\"><label for=\"fileInput\" class=\"form-label\">Select Files</label> <input type=\"file\" class=\"form-control\" id=\"fileInput\" name=\"files\" multiple webkitdirectory><div class=\"form-text\">You can select multiple files or folders of any size.</div></div><div class=\"mb-3\"><label for=\"fileInputSingle\" class=\"form-label\">Or Select Individual Files</label> <input type=\"file\" class=\"form-control\" id=\"fileInputSingle\" name=\"singleFiles\" multiple><div class=\"form-text\">No file size limits - upload files of any size.</div></div><div id=\"uploadProgress\" class=\"d-none\"><div class=\"progress mb-2\"><div class=\"progress-bar\" role=\"progressbar\" style=\"width: 0%\"></div></div><small class=\"text-muted\">Uploading...</small></div></form></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button> <button type=\"button\" class=\"btn btn-primary\" onclick=\"uploadFiles()\"><i class=\"fas fa-upload me-1\"></i>Upload</button></div></div></div></div><!-- Create Folder Modal --><div class=\"modal fade\" id=\"createFolderModal\" tabindex=\"-1\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><h5 class=\"modal-title\"><i class=\"fas fa-folder-plus me-2\"></i>Create New Folder</h5><button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\"></button></div><form hx-post=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/ui/api/buckets/%s/folders", data.BucketName))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 121, Col: 78}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" hx-target=\"body\" hx-swap=\"outerHTML\"><div class=\"modal-body\"><input type=\"hidden\" name=\"currentPath\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d items", len(data.Items)))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 83, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 123, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</small></div></div></div><div class=\"card-body p-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><div class=\"mb-3\"><label for=\"folderName\" class=\"form-label\">Folder Name</label> <input type=\"text\" class=\"form-control\" id=\"folderName\" name=\"folderName\" required pattern=\"[a-zA-Z0-9._-]+\" placeholder=\"my-folder\"><div class=\"form-text\">Use only letters, numbers, dots, hyphens, and underscores</div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button> <button type=\"submit\" class=\"btn btn-success\"><i class=\"fas fa-folder-plus me-1\"></i>Create Folder</button></div></form></div></div></div><div id=\"bucket-data\" data-bucket-name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.BucketName)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 140, Col: 57}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" data-current-path=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 140, Col: 96}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" style=\"display:none;\"></div><script type=\"text/javascript\">\n\t\t// Get template data from data attributes\n\t\tconst bucketDataEl = document.getElementById('bucket-data');\n\t\tconst bucketData = {\n\t\t\tbucketName: bucketDataEl.getAttribute('data-bucket-name'),\n\t\t\tcurrentPath: bucketDataEl.getAttribute('data-current-path')\n\t\t};\n\n\t\t// Notification function\n\t\tfunction showNotification(message, type = 'info') {\n\t\t\tconst alertClass = type === 'success' ? 'alert-success' : \n\t\t\t\t\t\t\t  type === 'error' ? 'alert-danger' : \n\t\t\t\t\t\t\t  type === 'warning' ? 'alert-warning' : 'alert-info';\n\t\t\t\n\t\t\tconst notification = document.createElement('div');\n\t\t\tnotification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;\n\t\t\tnotification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';\n\t\t\tnotification.innerHTML = `\n\t\t\t\t${message}\n\t\t\t\t<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>\n\t\t\t`;\n\t\t\tdocument.body.appendChild(notification);\n\t\t\t\n\t\t\t// Auto-remove after 5 seconds\n\t\t\tsetTimeout(() => {\n\t\t\t\tif (notification.parentNode) {\n\t\t\t\t\tnotification.remove();\n\t\t\t\t}\n\t\t\t}, 5000);\n\t\t}\n\n\t\t// Utility function to format file sizes\n\t\tfunction formatFileSize(bytes) {\n\t\t\tconst unit = 1024;\n\t\t\tif (bytes < unit) return bytes + ' B';\n\t\t\tlet div = unit, exp = 0;\n\t\t\tfor (let n = bytes / unit; n >= unit; n /= unit) {\n\t\t\t\tdiv *= unit;\n\t\t\t\texp++;\n\t\t\t}\n\t\t\treturn (bytes / div).toFixed(1) + ' ' + 'KMGTPE'[exp] + 'B';\n\t\t}\n\n\t\t// Drag and drop functionality\n\t\tconst dropZone = document.getElementById('dropZone');\n\t\tconst dropContent = document.querySelector('.drop-zone-content');\n\t\tconst dropUploading = document.querySelector('.drop-zone-uploading');\n\n\t\t// Prevent default drag behaviors\n\t\t['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, preventDefaults, false);\n\t\t\tdocument.body.addEventListener(eventName, preventDefaults, false);\n\t\t});\n\n\t\t// Highlight drop zone when item is dragged over it\n\t\t['dragenter', 'dragover'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, highlight, false);\n\t\t});\n\n\t\t['dragleave', 'drop'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, unhighlight, false);\n\t\t});\n\n\t\t// Handle dropped files\n\t\tdropZone.addEventListener('drop', handleDrop, false);\n\n\t\tfunction preventDefaults(e) {\n\t\t\te.preventDefault();\n\t\t\te.stopPropagation();\n\t\t}\n\n\t\tfunction highlight(e) {\n\t\t\tdropZone.style.borderColor = '#007bff';\n\t\t\tdropZone.style.backgroundColor = '#f8f9ff';\n\t\t}\n\n\t\tfunction unhighlight(e) {\n\t\t\tdropZone.style.borderColor = '#dee2e6';\n\t\t\tdropZone.style.backgroundColor = 'transparent';\n\t\t}\n\n\t\tfunction handleDrop(e) {\n\t\t\tconst dt = e.dataTransfer;\n\t\t\tconst files = dt.files;\n\t\t\tuploadDroppedFiles([...files]);\n\t\t}\n\n\t\tfunction uploadDroppedFiles(files) {\n\t\t\tif (files.length === 0) return;\n\n\t\t\tdropContent.classList.add('d-none');\n\t\t\tdropUploading.classList.remove('d-none');\n\n\t\t\tconst formData = new FormData();\n\t\t\tformData.append('currentPath', bucketData.currentPath);\n\t\t\t\n\t\t\tfiles.forEach(file => {\n\t\t\t\tformData.append('files', file, file.webkitRelativePath || file.name);\n\t\t\t});\n\n\t\t\tfetch(`/ui/api/buckets/${bucketData.bucketName}/upload`, {\n\t\t\t\tmethod: 'POST',\n\t\t\t\tbody: formData\n\t\t\t})\n\t\t\t.then(response => {\n\t\t\t\tif (response.ok) {\n\t\t\t\t\tshowNotification('Files uploaded successfully!', 'success');\n\t\t\t\t\t// Use HTMX to refresh the browser content\n\t\t\t\t\thtmx.ajax('GET', window.location.pathname + window.location.search, {\n\t\t\t\t\t\ttarget: '.file-browser-card',\n\t\t\t\t\t\tswap: 'outerHTML',\n\t\t\t\t\t\theaders: {'HX-Request': 'true'}\n\t\t\t\t\t});\n\t\t\t\t} else {\n\t\t\t\t\treturn response.json().then(data => {\n\t\t\t\t\t\tthrow new Error(data.error || 'Upload failed');\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tshowNotification(error.message, 'error');\n\t\t\t})\n\t\t\t.finally(() => {\n\t\t\t\tdropContent.classList.remove('d-none');\n\t\t\t\tdropUploading.classList.add('d-none');\n\t\t\t});\n\t\t}\n\n\t\tfunction uploadFiles() {\n\t\t\tconst fileInput = document.getElementById('fileInput');\n\t\t\tconst singleFileInput = document.getElementById('fileInputSingle');\n\t\t\tconst progressDiv = document.getElementById('uploadProgress');\n\t\t\tconst progressBar = progressDiv.querySelector('.progress-bar');\n\n\t\t\tconst files = [...fileInput.files, ...singleFileInput.files];\n\t\t\tif (files.length === 0) {\n\t\t\t\tshowNotification('Please select files to upload', 'warning');\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tprogressDiv.classList.remove('d-none');\n\t\t\t\n\t\t\tconst formData = new FormData();\n\t\t\tformData.append('currentPath', bucketData.currentPath);\n\t\t\t\n\t\t\tfiles.forEach(file => {\n\t\t\t\tformData.append('files', file, file.webkitRelativePath || file.name);\n\t\t\t});\n\n\t\t\tconst xhr = new XMLHttpRequest();\n\t\t\t\n\t\t\txhr.upload.addEventListener('progress', (e) => {\n\t\t\t\tif (e.lengthComputable) {\n\t\t\t\t\tconst percentComplete = (e.loaded / e.total) * 100;\n\t\t\t\t\tprogressBar.style.width = percentComplete + '%';\n\t\t\t\t}\n\t\t\t});\n\n\t\t\txhr.addEventListener('load', () => {\n\t\t\t\tif (xhr.status === 200) {\n\t\t\t\t\tshowNotification('Files uploaded successfully!', 'success');\n\t\t\t\t\tbootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();\n\t\t\t\t\t// Use HTMX to refresh the browser content\n\t\t\t\t\thtmx.ajax('GET', window.location.pathname + window.location.search, {\n\t\t\t\t\t\ttarget: '.file-browser-card',\n\t\t\t\t\t\tswap: 'outerHTML',\n\t\t\t\t\t\theaders: {'HX-Request': 'true'}\n\t\t\t\t\t});\n\t\t\t\t} else {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst response = JSON.parse(xhr.responseText);\n\t\t\t\t\t\tshowNotification(response.error || 'Upload failed', 'error');\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tshowNotification('Upload failed', 'error');\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tprogressDiv.classList.add('d-none');\n\t\t\t\tprogressBar.style.width = '0%';\n\t\t\t});\n\n\t\t\txhr.addEventListener('error', () => {\n\t\t\t\tshowNotification('Upload failed', 'error');\n\t\t\t\tprogressDiv.classList.add('d-none');\n\t\t\t\tprogressBar.style.width = '0%';\n\t\t\t});\n\n\t\t\txhr.open('POST', `/ui/api/buckets/${bucketData.bucketName}/upload`);\n\t\t\txhr.send(formData);\n\t\t}\n\n\t\t// Handle delete button clicks\n\t\tdocument.addEventListener('click', function(e) {\n\t\t\tif (e.target.classList.contains('delete-item-btn') || e.target.closest('.delete-item-btn')) {\n\t\t\t\tconst btn = e.target.classList.contains('delete-item-btn') ? e.target : e.target.closest('.delete-item-btn');\n\t\t\t\tconst name = btn.dataset.name;\n\t\t\t\tconst isDirectory = btn.dataset.isDirectory === 'true';\n\t\t\t\tconst bucketName = btn.dataset.bucket;\n\t\t\t\tconst fullPath = btn.dataset.path;\n\t\t\t\t\n\t\t\t\tconst type = isDirectory ? 'folder' : 'file';\n\t\t\t\tif (confirm(`Are you sure you want to delete this ${type}: ${name}?`)) {\n\t\t\t\t\tfetch(`/ui/api/buckets/${bucketName}/delete`, {\n\t\t\t\t\t\tmethod: 'DELETE',\n\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t'Content-Type': 'application/json',\n\t\t\t\t\t\t},\n\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\tpath: fullPath,\n\t\t\t\t\t\t\tisDirectory: isDirectory\n\t\t\t\t\t\t})\n\t\t\t\t\t})\n\t\t\t\t\t.then(response => {\n\t\t\t\t\t\tif (response.ok) {\n\t\t\t\t\t\t\tshowNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully!`, 'success');\n\t\t\t\t\t\t\t// Use HTMX to refresh the browser content\n\t\t\t\t\t\t\thtmx.ajax('GET', window.location.pathname + window.location.search, {\n\t\t\t\t\t\t\t\ttarget: '.file-browser-card',\n\t\t\t\t\t\t\t\tswap: 'outerHTML'\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\treturn response.json().then(data => {\n\t\t\t\t\t\t\t\tthrow new Error(data.error || 'Delete failed');\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\tshowNotification(error.message, 'error');\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t});\n\t</script>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// BucketBrowserCard renders just the file browser card for HTMX updates
+func BucketBrowserCard(data data.BucketBrowserData) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var11 == nil {
+			templ_7745c5c3_Var11 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card file-browser-card\"><div class=\"card-header bg-light\"><div class=\"row align-items-center\"><div class=\"col\"><h6 class=\"card-title mb-0\"><i class=\"fas fa-folder-open me-2\"></i>Contents ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.CurrentPath != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"text-muted\">(")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 384, Col: 51}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ")</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h6></div><div class=\"col-auto\"><small class=\"text-muted\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d items", len(data.Items)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 389, Col: 73}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</small></div></div></div><div class=\"card-body p-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Items) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"d-flex align-items-center justify-content-center h-100\" style=\"min-height: 400px;\"><div class=\"text-center\"><i class=\"fas fa-folder-open fa-3x text-muted mb-3\"></i><h5 class=\"text-muted\">This folder is empty</h5><p class=\"text-muted\">Upload files or create folders to get started</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"d-flex align-items-center justify-content-center h-100\" style=\"min-height: 400px;\"><div class=\"text-center\"><i class=\"fas fa-folder-open fa-3x text-muted mb-3\"></i><h5 class=\"text-muted\">This folder is empty</h5><p class=\"text-muted\">Upload files or create folders to get started</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"table-responsive\"><table class=\"table table-hover mb-0\"><thead class=\"table-light\"><tr><th scope=\"col\" width=\"50%\">Name</th><th scope=\"col\" width=\"15%\">Type</th><th scope=\"col\" width=\"15%\">Size</th><th scope=\"col\" width=\"15%\">Modified</th><th scope=\"col\" width=\"5%\">Actions</th></tr></thead> <tbody><!-- Parent directory link -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"table-responsive\"><table class=\"table table-hover mb-0\"><thead class=\"table-light\"><tr><th scope=\"col\" width=\"50%\">Name</th><th scope=\"col\" width=\"15%\">Type</th><th scope=\"col\" width=\"15%\">Size</th><th scope=\"col\" width=\"15%\">Modified</th><th scope=\"col\" width=\"5%\">Actions</th></tr></thead> <tbody><!-- Parent directory link -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.CurrentPath != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<tr><td><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr><td><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var9 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/buckets/%s?path=%s", data.BucketName, path.Dir(data.CurrentPath)))
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var9)))
+				var templ_7745c5c3_Var14 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/buckets/%s?path=%s", data.BucketName, path.Dir(data.CurrentPath)))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var14)))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"text-decoration-none text-primary\"><i class=\"fas fa-level-up-alt me-2\"></i>..</a></td><td><span class=\"badge bg-secondary\">Directory</span></td><td>-</td><td>-</td><td></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"text-decoration-none text-primary\"><i class=\"fas fa-level-up-alt me-2\"></i>..</a></td><td><span class=\"badge bg-secondary\">Directory</span></td><td>-</td><td>-</td><td></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Directory and file entries -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<!-- Directory and file entries -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range data.Items {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<tr><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if item.IsDirectory {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var10 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/buckets/%s?path=%s", data.BucketName, path.Join(data.CurrentPath, item.Name)))
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var10)))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"text-decoration-none text-primary\"><i class=\"fas fa-folder me-2 text-warning\"></i>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 129, Col: 70}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span><i class=\"fas fa-file me-2 text-info\"></i>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 133, Col: 65}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><td>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if item.IsDirectory {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge bg-warning text-dark\">Folder</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge bg-info\">File</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if item.IsDirectory {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "-")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					var templ_7745c5c3_Var13 string
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(formatFileSize(item.Size))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 148, Col: 38}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><td><small class=\"text-muted\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(item.ModTime.Format("Jan 02, 2006 15:04"))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 152, Col: 79}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</small></td><td><div class=\"dropdown\"><button class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" type=\"button\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"><i class=\"fas fa-ellipsis-v\"></i></button><ul class=\"dropdown-menu dropdown-menu-end\" style=\"z-index: 1055;\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if !item.IsDirectory {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<li><a class=\"dropdown-item\" href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var15 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/api/buckets/%s/download?path=%s", data.BucketName, path.Join(data.CurrentPath, item.Name)))
+					var templ_7745c5c3_Var15 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/buckets/%s?path=%s", data.BucketName, path.Join(data.CurrentPath, item.Name)))
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var15)))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" target=\"_blank\"><i class=\"fas fa-download me-2\"></i>Download</a></li><li><hr class=\"dropdown-divider\"></li>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" class=\"text-decoration-none text-primary\"><i class=\"fas fa-folder me-2 text-warning\"></i>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 435, Col: 70}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span><i class=\"fas fa-file me-2 text-info\"></i>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 439, Col: 65}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<li><button class=\"dropdown-item text-danger delete-item-btn\" data-name=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var16 string
-				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 171, Col: 35}
+				if item.IsDirectory {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge bg-warning text-dark\">Folder</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge bg-info\">File</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" data-is-directory=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%t", item.IsDirectory))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 172, Col: 69}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" data-bucket=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+				if item.IsDirectory {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "-")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(formatFileSize(item.Size))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 454, Col: 38}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
-				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(data.BucketName)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 173, Col: 43}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" data-path=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><td><small class=\"text-muted\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var19 string
-				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(path.Join(data.CurrentPath, item.Name))
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(item.ModTime.Format("Jan 02, 2006 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 174, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 458, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><i class=\"fas fa-trash me-2\"></i>Delete</button></li></ul></div></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</small></td><td><div class=\"dropdown\"><button class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" type=\"button\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"><i class=\"fas fa-ellipsis-v\"></i></button><ul class=\"dropdown-menu dropdown-menu-end\" style=\"z-index: 1055;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if !item.IsDirectory {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<li><a class=\"dropdown-item\" href=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var20 templ.SafeURL = templ.URL(fmt.Sprintf("/ui/api/buckets/%s/download?path=%s", data.BucketName, path.Join(data.CurrentPath, item.Name)))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var20)))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" target=\"_blank\"><i class=\"fas fa-download me-2\"></i>Download</a></li><li><hr class=\"dropdown-divider\"></li>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<li><button class=\"dropdown-item text-danger delete-item-btn\" data-name=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var21 string
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 477, Col: 35}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" data-is-directory=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%t", item.IsDirectory))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 478, Col: 69}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" data-bucket=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var23 string
+				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.BucketName)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 479, Col: 43}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-path=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var24 string
+				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(path.Join(data.CurrentPath, item.Name))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 480, Col: 64}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\"><i class=\"fas fa-trash me-2\"></i>Delete</button></li></ul></div></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</tbody></table></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div><!-- Upload Modal --><div class=\"modal fade\" id=\"uploadModal\" tabindex=\"-1\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><h5 class=\"modal-title\"><i class=\"fas fa-cloud-upload-alt me-2\"></i>Upload Files</h5><button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\"></button></div><div class=\"modal-body\"><form id=\"uploadForm\" enctype=\"multipart/form-data\"><div class=\"mb-3\"><label for=\"fileInput\" class=\"form-label\">Select Files</label> <input type=\"file\" class=\"form-control\" id=\"fileInput\" name=\"files\" multiple webkitdirectory><div class=\"form-text\">You can select multiple files or folders of any size.</div></div><div class=\"mb-3\"><label for=\"fileInputSingle\" class=\"form-label\">Or Select Individual Files</label> <input type=\"file\" class=\"form-control\" id=\"fileInputSingle\" name=\"singleFiles\" multiple><div class=\"form-text\">No file size limits - upload files of any size.</div></div><div id=\"uploadProgress\" class=\"d-none\"><div class=\"progress mb-2\"><div class=\"progress-bar\" role=\"progressbar\" style=\"width: 0%\"></div></div><small class=\"text-muted\">Uploading...</small></div></form></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button> <button type=\"button\" class=\"btn btn-primary\" onclick=\"uploadFiles()\"><i class=\"fas fa-upload me-1\"></i>Upload</button></div></div></div></div><!-- Create Folder Modal --><div class=\"modal fade\" id=\"createFolderModal\" tabindex=\"-1\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><h5 class=\"modal-title\"><i class=\"fas fa-folder-plus me-2\"></i>Create New Folder</h5><button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\"></button></div><form hx-post=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/ui/api/buckets/%s/folders", data.BucketName))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 239, Col: 78}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" hx-target=\"body\" hx-swap=\"outerHTML\"><div class=\"modal-body\"><input type=\"hidden\" name=\"currentPath\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var21 string
-		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 241, Col: 70}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"><div class=\"mb-3\"><label for=\"folderName\" class=\"form-label\">Folder Name</label> <input type=\"text\" class=\"form-control\" id=\"folderName\" name=\"folderName\" required pattern=\"[a-zA-Z0-9._-]+\" placeholder=\"my-folder\"><div class=\"form-text\">Use only letters, numbers, dots, hyphens, and underscores</div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button> <button type=\"submit\" class=\"btn btn-success\"><i class=\"fas fa-folder-plus me-1\"></i>Create Folder</button></div></form></div></div></div><div id=\"bucket-data\" data-bucket-name=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.BucketName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 258, Col: 57}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-current-path=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentPath)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `weed/s3api/ui/view/app/bucket_browser.templ`, Line: 258, Col: 96}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" style=\"display:none;\"></div><script type=\"text/javascript\">\n\t\t// Get template data from data attributes\n\t\tconst bucketDataEl = document.getElementById('bucket-data');\n\t\tconst bucketData = {\n\t\t\tbucketName: bucketDataEl.getAttribute('data-bucket-name'),\n\t\t\tcurrentPath: bucketDataEl.getAttribute('data-current-path')\n\t\t};\n\n\t\t// Notification function\n\t\tfunction showNotification(message, type = 'info') {\n\t\t\tconst alertClass = type === 'success' ? 'alert-success' : \n\t\t\t\t\t\t\t  type === 'error' ? 'alert-danger' : \n\t\t\t\t\t\t\t  type === 'warning' ? 'alert-warning' : 'alert-info';\n\t\t\t\n\t\t\tconst notification = document.createElement('div');\n\t\t\tnotification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;\n\t\t\tnotification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';\n\t\t\tnotification.innerHTML = `\n\t\t\t\t${message}\n\t\t\t\t<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>\n\t\t\t`;\n\t\t\tdocument.body.appendChild(notification);\n\t\t\t\n\t\t\t// Auto-remove after 5 seconds\n\t\t\tsetTimeout(() => {\n\t\t\t\tif (notification.parentNode) {\n\t\t\t\t\tnotification.remove();\n\t\t\t\t}\n\t\t\t}, 5000);\n\t\t}\n\n\t\t// Utility function to format file sizes\n\t\tfunction formatFileSize(bytes) {\n\t\t\tconst unit = 1024;\n\t\t\tif (bytes < unit) return bytes + ' B';\n\t\t\tlet div = unit, exp = 0;\n\t\t\tfor (let n = bytes / unit; n >= unit; n /= unit) {\n\t\t\t\tdiv *= unit;\n\t\t\t\texp++;\n\t\t\t}\n\t\t\treturn (bytes / div).toFixed(1) + ' ' + 'KMGTPE'[exp] + 'B';\n\t\t}\n\n\t\t// Drag and drop functionality\n\t\tconst dropZone = document.getElementById('dropZone');\n\t\tconst dropContent = document.querySelector('.drop-zone-content');\n\t\tconst dropUploading = document.querySelector('.drop-zone-uploading');\n\n\t\t// Prevent default drag behaviors\n\t\t['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, preventDefaults, false);\n\t\t\tdocument.body.addEventListener(eventName, preventDefaults, false);\n\t\t});\n\n\t\t// Highlight drop zone when item is dragged over it\n\t\t['dragenter', 'dragover'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, highlight, false);\n\t\t});\n\n\t\t['dragleave', 'drop'].forEach(eventName => {\n\t\t\tdropZone.addEventListener(eventName, unhighlight, false);\n\t\t});\n\n\t\t// Handle dropped files\n\t\tdropZone.addEventListener('drop', handleDrop, false);\n\n\t\tfunction preventDefaults(e) {\n\t\t\te.preventDefault();\n\t\t\te.stopPropagation();\n\t\t}\n\n\t\tfunction highlight(e) {\n\t\t\tdropZone.style.borderColor = '#007bff';\n\t\t\tdropZone.style.backgroundColor = '#f8f9ff';\n\t\t}\n\n\t\tfunction unhighlight(e) {\n\t\t\tdropZone.style.borderColor = '#dee2e6';\n\t\t\tdropZone.style.backgroundColor = 'transparent';\n\t\t}\n\n\t\tfunction handleDrop(e) {\n\t\t\tconst dt = e.dataTransfer;\n\t\t\tconst files = dt.files;\n\t\t\tuploadDroppedFiles([...files]);\n\t\t}\n\n\t\tfunction uploadDroppedFiles(files) {\n\t\t\tif (files.length === 0) return;\n\n\t\t\tdropContent.classList.add('d-none');\n\t\t\tdropUploading.classList.remove('d-none');\n\n\t\t\tconst formData = new FormData();\n\t\t\tformData.append('currentPath', bucketData.currentPath);\n\t\t\t\n\t\t\tfiles.forEach(file => {\n\t\t\t\tformData.append('files', file, file.webkitRelativePath || file.name);\n\t\t\t});\n\n\t\t\tfetch(`/ui/api/buckets/${bucketData.bucketName}/upload`, {\n\t\t\t\tmethod: 'POST',\n\t\t\t\tbody: formData\n\t\t\t})\n\t\t\t.then(response => {\n\t\t\t\tif (response.ok) {\n\t\t\t\t\tshowNotification('Files uploaded successfully!', 'success');\n\t\t\t\t\tlocation.reload();\n\t\t\t\t} else {\n\t\t\t\t\treturn response.json().then(data => {\n\t\t\t\t\t\tthrow new Error(data.error || 'Upload failed');\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tshowNotification(error.message, 'error');\n\t\t\t})\n\t\t\t.finally(() => {\n\t\t\t\tdropContent.classList.remove('d-none');\n\t\t\t\tdropUploading.classList.add('d-none');\n\t\t\t});\n\t\t}\n\n\t\tfunction uploadFiles() {\n\t\t\tconst fileInput = document.getElementById('fileInput');\n\t\t\tconst singleFileInput = document.getElementById('fileInputSingle');\n\t\t\tconst progressDiv = document.getElementById('uploadProgress');\n\t\t\tconst progressBar = progressDiv.querySelector('.progress-bar');\n\n\t\t\tconst files = [...fileInput.files, ...singleFileInput.files];\n\t\t\tif (files.length === 0) {\n\t\t\t\tshowNotification('Please select files to upload', 'warning');\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tprogressDiv.classList.remove('d-none');\n\t\t\t\n\t\t\tconst formData = new FormData();\n\t\t\tformData.append('currentPath', bucketData.currentPath);\n\t\t\t\n\t\t\tfiles.forEach(file => {\n\t\t\t\tformData.append('files', file, file.webkitRelativePath || file.name);\n\t\t\t});\n\n\t\t\tconst xhr = new XMLHttpRequest();\n\t\t\t\n\t\t\txhr.upload.addEventListener('progress', (e) => {\n\t\t\t\tif (e.lengthComputable) {\n\t\t\t\t\tconst percentComplete = (e.loaded / e.total) * 100;\n\t\t\t\t\tprogressBar.style.width = percentComplete + '%';\n\t\t\t\t}\n\t\t\t});\n\n\t\t\txhr.addEventListener('load', () => {\n\t\t\t\tif (xhr.status === 200) {\n\t\t\t\t\tshowNotification('Files uploaded successfully!', 'success');\n\t\t\t\t\tbootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();\n\t\t\t\t\tlocation.reload();\n\t\t\t\t} else {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst response = JSON.parse(xhr.responseText);\n\t\t\t\t\t\tshowNotification(response.error || 'Upload failed', 'error');\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tshowNotification('Upload failed', 'error');\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tprogressDiv.classList.add('d-none');\n\t\t\t\tprogressBar.style.width = '0%';\n\t\t\t});\n\n\t\t\txhr.addEventListener('error', () => {\n\t\t\t\tshowNotification('Upload failed', 'error');\n\t\t\t\tprogressDiv.classList.add('d-none');\n\t\t\t\tprogressBar.style.width = '0%';\n\t\t\t});\n\n\t\t\txhr.open('POST', `/ui/api/buckets/${bucketData.bucketName}/upload`);\n\t\t\txhr.send(formData);\n\t\t}\n\n\t\t// Handle delete button clicks\n\t\tdocument.addEventListener('click', function(e) {\n\t\t\tif (e.target.classList.contains('delete-item-btn') || e.target.closest('.delete-item-btn')) {\n\t\t\t\tconst btn = e.target.classList.contains('delete-item-btn') ? e.target : e.target.closest('.delete-item-btn');\n\t\t\t\tconst name = btn.dataset.name;\n\t\t\t\tconst isDirectory = btn.dataset.isDirectory === 'true';\n\t\t\t\tconst bucketName = btn.dataset.bucket;\n\t\t\t\tconst fullPath = btn.dataset.path;\n\t\t\t\t\n\t\t\t\tconst type = isDirectory ? 'folder' : 'file';\n\t\t\t\tif (confirm(`Are you sure you want to delete this ${type}: ${name}?`)) {\n\t\t\t\t\tfetch(`/ui/api/buckets/${bucketName}/delete`, {\n\t\t\t\t\t\tmethod: 'DELETE',\n\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t'Content-Type': 'application/json',\n\t\t\t\t\t\t},\n\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\tpath: fullPath,\n\t\t\t\t\t\t\tisDirectory: isDirectory\n\t\t\t\t\t\t})\n\t\t\t\t\t})\n\t\t\t\t\t.then(response => {\n\t\t\t\t\t\tif (response.ok) {\n\t\t\t\t\t\t\tshowNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully!`, 'success');\n\t\t\t\t\t\t\tlocation.reload();\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\treturn response.json().then(data => {\n\t\t\t\t\t\t\t\tthrow new Error(data.error || 'Delete failed');\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\tshowNotification(error.message, 'error');\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

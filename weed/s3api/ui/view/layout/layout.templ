@@ -139,15 +139,11 @@ templ Layout(c *gin.Context, content templ.Component) {
 							</a>
 							<ul class="dropdown-menu">
 								<li>
-									<a class="dropdown-item" href="/admin">
-										<i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-									</a>
-								</li>
-								<li><hr class="dropdown-divider"/></li>
-								<li>
-									<a class="dropdown-item" href="/logout">
-										<i class="fas fa-sign-out-alt me-2"></i>Logout
-									</a>
+									<form method="POST" action="/ui/logout" style="margin: 0;">
+										<button type="submit" class="dropdown-item">
+											<i class="fas fa-sign-out-alt me-2"></i>Logout
+										</button>
+									</form>
 								</li>
 							</ul>
 						</li>

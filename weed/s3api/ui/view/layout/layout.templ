@@ -1,0 +1,326 @@
+package layout
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/seaweedfs/seaweedfs/weed/util/version"
+	"strings"
+	"time"
+)
+
+templ Layout(c *gin.Context, content templ.Component) {
+	{{
+	username := c.GetString("username")
+	if username == "" {
+		username = "admin"
+	}
+
+	currentPath := c.Request.URL.Path
+	isBucketPage := strings.HasPrefix(currentPath, "/ui/buckets")
+	}}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<title>SeaweedFS S3 Console</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+			<!-- Bootstrap CSS -->
+			<link href="/static/css/bootstrap.min.css" rel="stylesheet"/>
+			<!-- Font Awesome CSS -->
+			<link href="/static/css/fontawesome.min.css" rel="stylesheet"/>
+			<!-- HTMX -->
+			<script src="/static/js/htmx.min.js"></script>
+			<!-- Alpine.js -->
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			<!-- Custom CSS -->
+			<link rel="stylesheet" href="/static/css/s3ui.css"/>
+			<style>
+        .navbar-brand img {
+            height: 32px;
+            width: 32px;
+        }
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+        .nav-link {
+            color: #333 !important;
+        }
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        .nav-link.active {
+            background-color: #007bff;
+            color: white !important;
+        }
+        
+        /* Flat design - no shadows or hover effects for cards and tables */
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #dee2e6;
+        }
+        .card:hover {
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .bucket-card {
+            transition: none !important;
+            box-shadow: none !important;
+            border: 1px solid #dee2e6;
+        }
+        .bucket-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .table:hover {
+            box-shadow: none !important;
+        }
+        .table-responsive:hover {
+            box-shadow: none !important;
+        }
+        
+        /* Sticky footer */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        .container-fluid {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+            margin-top: auto !important;
+        }
+        
+        /* Fix dropdown z-index issues */
+        .dropdown-menu {
+            z-index: 1050 !important;
+        }
+        .table-responsive {
+            overflow: visible !important;
+        }
+        
+        /* Make table take full height - only for file browser */
+        .file-browser-card {
+            min-height: calc(100vh - 300px);
+            display: flex;
+            flex-direction: column;
+        }
+        .file-browser-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .file-browser-card .table-responsive {
+            flex: 1;
+            min-height: 400px;
+        }
+    </style>
+		</head>
+		<body>
+			<!-- Header -->
+			<header class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top px-3">
+				<a class="navbar-brand fw-bold" href="/ui">
+					<i class="fas fa-cube me-2"></i>
+					SeaweedFS S3 Console
+				</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav ms-auto">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+								<i class="fas fa-user me-1"></i>{ username }
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="/admin">
+										<i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"/></li>
+								<li>
+									<a class="dropdown-item" href="/logout">
+										<i class="fas fa-sign-out-alt me-2"></i>Logout
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<div class="container-fluid">
+				<div class="row g-0">
+					<!-- Sidebar -->
+					<div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+						<div class="position-sticky pt-3">
+							<h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
+								<span>S3 STORAGE</span>
+							</h6>
+							<ul class="nav flex-column">
+								<li class="nav-item">
+									if currentPath == "/ui" || currentPath == "/ui/" {
+										<a class="nav-link active" href="/ui">
+											<i class="fas fa-home me-2"></i>Overview
+										</a>
+									} else {
+										<a class="nav-link" href="/ui">
+											<i class="fas fa-home me-2"></i>Overview
+										</a>
+									}
+								</li>
+								<li class="nav-item">
+									if isBucketPage {
+										<a class="nav-link active" href="/ui/buckets">
+											<i class="fas fa-cube me-2"></i>Buckets
+										</a>
+									} else {
+										<a class="nav-link" href="/ui/buckets">
+											<i class="fas fa-cube me-2"></i>Buckets
+										</a>
+									}
+								</li>
+							</ul>
+						</div>
+					</div>
+					<!-- Main content -->
+					<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+						<div class="pt-3">
+							@content
+						</div>
+					</main>
+				</div>
+			</div>
+			<!-- Notification Container -->
+			<div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1060;"></div>
+			<!-- Footer -->
+			<footer class="footer mt-auto py-3 bg-light">
+				<div class="container-fluid text-center">
+					<small class="text-muted">
+						&copy; { fmt.Sprintf("%d", time.Now().Year()) } SeaweedFS S3 Console v{ version.VERSION_NUMBER }
+						<span class="mx-2">•</span>
+						<a href="https://seaweedfs.com" target="_blank" class="text-decoration-none">
+							<i class="fas fa-external-link-alt me-1"></i>Documentation
+						</a>
+					</small>
+				</div>
+			</footer>
+			<!-- Bootstrap JS -->
+			<script src="/static/js/bootstrap.bundle.min.js"></script>
+			<!-- Global Error Handling and Notifications -->
+			<script>
+			// Global notification system
+			window.showNotification = function(message, type = 'info', duration = 5000) {
+				console.log('Showing notification:', message, type);
+				const container = document.getElementById('notification-container');
+				const alertId = 'alert-' + Date.now();
+
+				const alertTypes = {
+					'success': 'alert-success',
+					'error': 'alert-danger',
+					'warning': 'alert-warning',
+					'info': 'alert-info'
+				};
+
+				const icons = {
+					'success': 'fas fa-check-circle',
+					'error': 'fas fa-exclamation-circle',
+					'warning': 'fas fa-exclamation-triangle',
+					'info': 'fas fa-info-circle'
+				};
+
+				const alertHtml = `
+					<div id="${alertId}" class="alert ${alertTypes[type]} alert-dismissible fade show" role="alert" style="min-width: 300px;">
+						<i class="${icons[type]} me-2"></i>
+						${message}
+						<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+					</div>
+				`;
+
+				container.insertAdjacentHTML('beforeend', alertHtml);
+
+				// Auto-dismiss after duration
+				setTimeout(() => {
+					const alert = document.getElementById(alertId);
+					if (alert) {
+						const bsAlert = new bootstrap.Alert(alert);
+						bsAlert.close();
+					}
+				}, duration);
+			};
+
+			// Global HTMX error and response handling
+			document.body.addEventListener('htmx:responseError', function(evt) {
+				// Skip bucket form - it has its own error handling
+				if (evt.detail.elt && evt.detail.elt.id === 'createBucketForm') {
+					return;
+				}
+
+				console.log('HTMX Response Error:', evt.detail);
+				let errorMessage = 'An error occurred';
+
+				try {
+					if (evt.detail.xhr.responseText) {
+						const response = JSON.parse(evt.detail.xhr.responseText);
+						if (response.error) {
+							errorMessage = response.error;
+						}
+					}
+				} catch (e) {
+					console.error('Error parsing response:', e);
+					errorMessage = evt.detail.xhr.statusText || errorMessage;
+				}
+
+				showNotification(errorMessage, 'error');
+			});
+
+			// Handle all HTMX requests (including errors)
+			document.body.addEventListener('htmx:afterRequest', function(evt) {
+				// Skip bucket form - it has its own error handling
+				if (evt.detail.elt && evt.detail.elt.id === 'createBucketForm') {
+					return;
+				}
+
+				console.log('HTMX After Request:', evt.detail);
+
+				// Handle errors (4xx, 5xx status codes)
+				if (evt.detail.xhr.status >= 400) {
+					let errorMessage = 'An error occurred';
+
+					try {
+						if (evt.detail.xhr.responseText) {
+							const response = JSON.parse(evt.detail.xhr.responseText);
+							if (response.error) {
+								errorMessage = response.error;
+							}
+						}
+					} catch (e) {
+						console.error('Error parsing error response:', e);
+						errorMessage = evt.detail.xhr.statusText || `HTTP ${evt.detail.xhr.status} Error`;
+					}
+
+					showNotification(errorMessage, 'error');
+					return;
+				}
+
+				// Handle successful operations
+				if (evt.detail.xhr.status === 200 || evt.detail.xhr.status === 201) {
+					// Show success message for bucket operations
+					if (evt.detail.requestConfig && evt.detail.requestConfig.path && evt.detail.requestConfig.path.includes('/ui/api/buckets')) {
+						if (evt.detail.requestConfig.verb === 'post') {
+							showNotification('Bucket created successfully!', 'success');
+						} else if (evt.detail.requestConfig.verb === 'delete') {
+							showNotification('Bucket deleted successfully!', 'success');
+						}
+					}
+				}
+			});
+			</script>
+		</body>
+	</html>
+}

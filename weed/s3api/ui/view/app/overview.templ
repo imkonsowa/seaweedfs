@@ -1,0 +1,213 @@
+package app
+
+import (
+	"fmt"
+	"github.com/seaweedfs/seaweedfs/weed/s3api/ui/view/data"
+)
+
+templ Overview(data data.BucketsData) {
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+		<h1 class="h2">
+			<i class="fas fa-home me-2"></i>S3 Storage Overview
+		</h1>
+		<div class="btn-toolbar mb-2 mb-md-0">
+			<div class="btn-group me-2">
+				<a href="/ui/buckets" class="btn btn-sm btn-primary">
+					<i class="fas fa-cube me-1"></i>Manage Buckets
+				</a>
+				<button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+					<i class="fas fa-sync-alt me-1"></i>Refresh
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- Quick Stats -->
+	<div class="row mb-4">
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-primary shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+								Total Buckets
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ fmt.Sprintf("%d", len(data.Buckets)) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-cube fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-success shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+								Total Objects
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ formatNumber(data.TotalObjects) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-file fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-info shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+								Total Storage
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ formatBytes(data.TotalSize) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-hdd fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-warning shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+								S3 API Status
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								if data.S3ApiConnected {
+									<span class="badge bg-success">Connected</span>
+								} else {
+									<span class="badge bg-danger">Disconnected</span>
+								}
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-plug fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Recent Buckets -->
+	<div class="row">
+		<div class="col-12">
+			<div class="card shadow mb-4">
+				<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+					<h6 class="m-0 font-weight-bold text-primary">
+						<i class="fas fa-cube me-2"></i>Recent Buckets
+					</h6>
+					<a href="/ui/buckets" class="btn btn-sm btn-primary">
+						<i class="fas fa-eye me-1"></i>View All
+					</a>
+				</div>
+				<div class="card-body">
+					if len(data.Buckets) > 0 {
+						<div class="table-responsive">
+							<table class="table table-hover" width="100%" cellspacing="0">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Objects</th>
+										<th>Size</th>
+										<th>Created</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									for i, bucket := range data.Buckets {
+										if i < 5 {
+											<tr>
+												<td>
+													<i class="fas fa-cube me-2 text-primary"></i>
+													{ bucket.Name }
+												</td>
+												<td>{ formatNumber(bucket.ObjectCount) }</td>
+												<td>{ formatBytes(bucket.Size) }</td>
+												<td>{ bucket.CreationDate.Format("2006-01-02 15:04") }</td>
+												<td>
+													<a href={ templ.SafeURL("/ui/buckets/" + bucket.Name) } class="btn btn-sm btn-outline-primary">
+														<i class="fas fa-folder-open me-1"></i>Browse
+													</a>
+												</td>
+											</tr>
+										}
+									}
+								</tbody>
+							</table>
+						</div>
+					} else {
+						<div class="text-center py-4">
+							<i class="fas fa-cube fa-3x text-muted mb-3"></i>
+							<h5 class="text-muted">No Buckets Found</h5>
+							<p class="text-muted">Get started by creating your first S3 bucket.</p>
+							<a href="/ui/buckets" class="btn btn-primary">
+								<i class="fas fa-plus me-2"></i>Create Your First Bucket
+							</a>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Getting Started -->
+	if len(data.Buckets) == 0 {
+		<div class="row">
+			<div class="col-12">
+				<div class="card shadow mb-4">
+					<div class="card-header py-3">
+						<h6 class="m-0 font-weight-bold text-primary">
+							<i class="fas fa-rocket me-2"></i>Getting Started
+						</h6>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-md-4 text-center mb-4">
+								<i class="fas fa-cube fa-3x text-primary mb-3"></i>
+								<h5>Create Buckets</h5>
+								<p class="text-muted">Create S3 buckets to store your objects and data.</p>
+								<a href="/ui/buckets" class="btn btn-primary">Start Now</a>
+							</div>
+							<div class="col-md-4 text-center mb-4">
+								<i class="fas fa-upload fa-3x text-success mb-3"></i>
+								<h5>Upload Objects</h5>
+								<p class="text-muted">Upload files and manage your objects through the browser.</p>
+								<button class="btn btn-outline-secondary" disabled>Coming Soon</button>
+							</div>
+							<div class="col-md-4 text-center mb-4">
+								<i class="fas fa-cog fa-3x text-info mb-3"></i>
+								<h5>Configure API</h5>
+								<p class="text-muted">Configure S3 API settings and connection parameters.</p>
+								<a href="/ui/settings" class="btn btn-info">Configure</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+	<!-- Last Updated -->
+	<div class="row">
+		<div class="col-12">
+			<small class="text-muted">
+				<i class="fas fa-clock me-1"></i>
+				Last updated: { data.LastUpdated.Format("2006-01-02 15:04:05") }
+			</small>
+		</div>
+	</div>
+}

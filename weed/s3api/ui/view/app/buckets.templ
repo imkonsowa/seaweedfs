@@ -1,0 +1,395 @@
+package app
+
+import (
+	"fmt"
+	"github.com/seaweedfs/seaweedfs/weed/s3api/ui/view/data"
+)
+
+templ Buckets(data data.BucketsData) {
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+		<h1 class="h2">
+			<i class="fas fa-cube me-2"></i>S3 Buckets
+		</h1>
+		<div class="btn-toolbar mb-2 mb-md-0">
+			<div class="btn-group me-2">
+				<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createBucketModal">
+					<i class="fas fa-plus me-1"></i>Create Bucket
+				</button>
+				<button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+					<i class="fas fa-sync-alt me-1"></i>Refresh
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- Summary Cards -->
+	<div class="row mb-4">
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-primary h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+								Total Buckets
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ fmt.Sprintf("%d", len(data.Buckets)) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-cube fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-success h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+								Total Objects
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ formatNumber(data.TotalObjects) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-file fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-info h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+								Total Storage
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								{ formatBytes(data.TotalSize) }
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-hdd fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-warning h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+								S3 API Status
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">
+								if data.S3ApiConnected {
+									<span class="badge bg-success">Connected</span>
+								} else {
+									<span class="badge bg-danger">Disconnected</span>
+								}
+							</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-plug fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Buckets Grid -->
+	<div class="row" id="buckets-container">
+		if len(data.Buckets) > 0 {
+			for _, bucket := range data.Buckets {
+				<div class="col-xl-4 col-md-6 mb-4">
+					<div class="card bucket-card h-100">
+						<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+							<h6 class="mb-0">
+								<i class="fas fa-cube me-2"></i>{ bucket.Name }
+							</h6>
+							<div class="dropdown">
+								<button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-v"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" style="z-index: 1055;">
+									<li>
+										<a class="dropdown-item" href={ templ.SafeURL("/ui/buckets/" + bucket.Name) }>
+											<i class="fas fa-folder-open me-2"></i>Browse
+										</a>
+									</li>
+									<li>
+										<button
+											class="dropdown-item text-danger delete-bucket-btn"
+											data-bucket-name={ bucket.Name }
+										>
+											<i class="fas fa-trash me-2"></i>Delete
+										</button>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="row text-center">
+								<div class="col-6">
+									<div class="border-end">
+										<h5 class="text-primary">{ formatNumber(bucket.ObjectCount) }</h5>
+										<small class="text-muted">Objects</small>
+									</div>
+								</div>
+								<div class="col-6">
+									<h5 class="text-success">{ formatBytes(bucket.Size) }</h5>
+									<small class="text-muted">Size</small>
+								</div>
+							</div>
+							<hr/>
+							<small class="text-muted">
+								<i class="fas fa-calendar me-1"></i>
+								Created: { bucket.CreationDate.Format("2006-01-02 15:04") }
+							</small>
+						</div>
+					</div>
+				</div>
+			}
+		} else {
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body text-center py-5">
+						<i class="fas fa-cube fa-4x text-muted mb-3"></i>
+						<h4 class="text-muted">No Buckets Found</h4>
+						<p class="text-muted">Get started by creating your first S3 bucket.</p>
+						<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBucketModal">
+							<i class="fas fa-plus me-2"></i>Create Your First Bucket
+						</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+	<!-- Create Bucket Modal -->
+	<div class="modal fade" id="createBucketModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">
+						<i class="fas fa-plus me-2"></i>Create New Bucket
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<form id="createBucketForm" hx-post="/ui/api/buckets" hx-target="#buckets-container" hx-swap="outerHTML" onsubmit="return false;">
+					<div class="modal-body">
+						<div id="form-error-alert" class="alert alert-danger d-none mb-3" role="alert" style="position: relative; z-index: 1050;">
+							<i class="fas fa-exclamation-circle me-2"></i>
+							<span id="form-error-message"></span>
+						</div>
+						<div class="mb-3">
+							<label for="bucketName" class="form-label">Bucket Name *</label>
+							<input
+								type="text"
+								class="form-control"
+								id="bucketName"
+								name="bucketName"
+								pattern="[a-z0-9][a-z0-9\-]*[a-z0-9]"
+								title="Bucket names must be 3-63 characters, start and end with lowercase letter or number, and contain only lowercase letters, numbers, and hyphens."
+								minlength="3"
+								maxlength="63"
+								required
+							/>
+							<div class="form-text">
+								Bucket names must be 3-63 characters, start and end with lowercase letter or number, and contain only lowercase letters, numbers, and hyphens.
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="bucketRegion" class="form-label">Region</label>
+							<select class="form-select" id="bucketRegion" name="bucketRegion">
+								<option value="us-east-1" selected>us-east-1 (Default)</option>
+								<option value="us-west-1">us-west-1</option>
+								<option value="us-west-2">us-west-2</option>
+								<option value="eu-west-1">eu-west-1</option>
+								<option value="ap-southeast-1">ap-southeast-1</option>
+							</select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">
+							<i class="fas fa-plus me-2"></i>Create Bucket
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- Last Updated -->
+	<div class="row mt-4">
+		<div class="col-12">
+			<small class="text-muted">
+				<i class="fas fa-clock me-1"></i>
+				Last updated: { data.LastUpdated.Format("2006-01-02 15:04:05") }
+			</small>
+		</div>
+	</div>
+	<script>
+        // Handle delete bucket buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-bucket-btn')) {
+                const btn = e.target.closest('.delete-bucket-btn');
+                const bucketName = btn.getAttribute('data-bucket-name');
+                if (confirm(`Are you sure you want to delete bucket "${bucketName}"? This action cannot be undone.`)) {
+                    htmx.ajax('DELETE', `/ui/api/buckets/${bucketName}`, {
+                        target: '#buckets-container',
+                        swap: 'outerHTML'
+                    });
+                }
+            }
+        });
+
+        // Function to show form error
+        function showFormError(message) {
+            const errorAlert = document.getElementById('form-error-alert');
+            const errorMessage = document.getElementById('form-error-message');
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('d-none');
+        }
+
+        // Function to hide form error
+        function hideFormError() {
+            const errorAlert = document.getElementById('form-error-alert');
+            errorAlert.classList.add('d-none');
+        }
+
+        // Handle response before HTMX processes it
+        document.addEventListener('htmx:beforeSwap', function(evt) {
+            if (evt.detail.requestConfig.elt.id === 'createBucketForm') {
+                console.log('HTMX beforeSwap - Status:', evt.detail.xhr.status, 'Response:', evt.detail.xhr.responseText);
+                
+                if (evt.detail.xhr.status >= 400) {
+                    // Prevent HTMX from swapping content on error
+                    evt.detail.shouldSwap = false;
+                    
+                    // Handle error
+                    let errorMessage = 'An error occurred';
+                    try {
+                        const response = JSON.parse(evt.detail.xhr.responseText);
+                        if (response.error) {
+                            errorMessage = response.error;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing error response:', e);
+                        errorMessage = `HTTP ${evt.detail.xhr.status} Error: ${evt.detail.xhr.responseText || 'Unknown error'}`;
+                    }
+                    console.log('Showing error:', errorMessage);
+                    showFormError(errorMessage);
+                }
+            }
+        });
+
+        // Handle form submission success
+        document.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.requestConfig.elt.id === 'createBucketForm') {
+                console.log('HTMX afterSwap - Success response received');
+                hideFormError();
+                var modal = bootstrap.Modal.getInstance(document.getElementById('createBucketModal'));
+                modal.hide();
+                evt.detail.requestConfig.elt.reset();
+            }
+        });
+
+
+        // Hide error when modal opens
+        document.getElementById('createBucketModal').addEventListener('show.bs.modal', function() {
+            hideFormError();
+        });
+    </script>
+}
+
+templ BucketsContainer(data data.BucketsData) {
+	<div class="row" id="buckets-container">
+		for _, bucket := range data.Buckets {
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="card h-100">
+					<div class="card-body">
+						<div class="d-flex justify-content-between align-items-start mb-3">
+							<h5 class="card-title mb-0">
+								<i class="fas fa-cube me-2 text-primary"></i>
+								<a href={ templ.SafeURL(fmt.Sprintf("/ui/buckets/%s", bucket.Name)) } class="text-decoration-none">
+									{ bucket.Name }
+								</a>
+							</h5>
+							<div class="dropdown">
+								<button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-v"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" style="z-index: 1055;">
+									<li>
+										<a class="dropdown-item" href={ templ.SafeURL(fmt.Sprintf("/ui/buckets/%s", bucket.Name)) }>
+											<i class="fas fa-folder-open me-2"></i>Browse
+										</a>
+									</li>
+									<li><hr class="dropdown-divider"/></li>
+									<li>
+										<button class="dropdown-item text-danger delete-bucket-btn" data-bucket-name={ bucket.Name }>
+											<i class="fas fa-trash me-2"></i>Delete
+										</button>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="row text-center">
+							<div class="col-6">
+								<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+									Objects
+								</div>
+								<div class="h6 mb-0 font-weight-bold text-gray-800">
+									{ formatNumber(bucket.ObjectCount) }
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+									Size
+								</div>
+								<div class="h6 mb-0 font-weight-bold text-gray-800">
+									{ formatBytes(bucket.Size) }
+								</div>
+							</div>
+						</div>
+						<hr/>
+						<div class="text-muted">
+							<small>
+								<i class="fas fa-calendar me-1"></i>
+								Created: { bucket.CreationDate.Format("2006-01-02 15:04") }
+							</small>
+							if bucket.Region != "" {
+								<br/>
+								<small>
+									<i class="fas fa-globe me-1"></i>
+									Region: { bucket.Region }
+								</small>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+		if len(data.Buckets) == 0 {
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body text-center py-5">
+						<i class="fas fa-cube fa-3x text-gray-300 mb-3"></i>
+						<h5 class="text-gray-600">No buckets found</h5>
+						<p class="text-gray-500 mb-4">Get started by creating your first S3 bucket.</p>
+						<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBucketModal">
+							<i class="fas fa-plus me-2"></i>Create Your First Bucket
+						</button>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}

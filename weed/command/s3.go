@@ -23,6 +23,7 @@ import (
 	"github.com/seaweedfs/seaweedfs/weed/pb/s3_pb"
 	"github.com/seaweedfs/seaweedfs/weed/s3api"
 	"github.com/seaweedfs/seaweedfs/weed/s3api/s3err"
+	"github.com/seaweedfs/seaweedfs/weed/s3api/ui"
 	"github.com/seaweedfs/seaweedfs/weed/security"
 	stats_collect "github.com/seaweedfs/seaweedfs/weed/stats"
 	"github.com/seaweedfs/seaweedfs/weed/util"
@@ -56,6 +57,11 @@ type S3Options struct {
 	localSocket               *string
 	certProvider              certprovider.Provider
 	idleTimeout               *int
+	// Console options
+	consolePort        *int
+	consoleAdminKey    *string
+	consoleAdminSecret *string
+	consoleConfig      *string
 }
 
 func init() {
@@ -81,11 +87,16 @@ func init() {
 	s3StandaloneOptions.localFilerSocket = cmdS3.Flag.String("localFilerSocket", "", "local filer socket path")
 	s3StandaloneOptions.localSocket = cmdS3.Flag.String("localSocket", "", "default to /tmp/seaweedfs-s3-<port>.sock")
 	s3StandaloneOptions.idleTimeout = cmdS3.Flag.Int("idleTimeout", 10, "connection idle seconds")
+	// Console flags
+	s3StandaloneOptions.consolePort = cmdS3.Flag.Int("console.port", 0, "console web server port. If 0, console is disabled")
+	s3StandaloneOptions.consoleAdminKey = cmdS3.Flag.String("console.adminKey", "", "admin access key for console operations")
+	s3StandaloneOptions.consoleAdminSecret = cmdS3.Flag.String("console.adminSecret", "", "admin secret key for console operations")
+	s3StandaloneOptions.consoleConfig = cmdS3.Flag.String("console.config", "", "path to console configuration file")
 }
 
 var cmdS3 = &Command{
-	UsageLine: "s3 [-port=8333] [-filer=<ip:port>] [-config=</path/to/config.json>]",
-	Short:     "start a s3 API compatible server that is backed by a filer",
+	UsageLine: "s3 [-port=8333] [-filer=<ip:port>] [-config=</path/to/config.json>] [-console.port=8080]",
+	Short:     "start a s3 API compatible server that is backed by a filer, with optional web console",
 	Long: `start a s3 API compatible server that is backed by a filer.
 
 	By default, you can use any access key and secret key to access the S3 APIs.
@@ -245,6 +256,37 @@ func (s3opt *S3Options) startS3Server() bool {
 	})
 	if s3ApiServer_err != nil {
 		glog.Fatalf("S3 API Server startup error: %v", s3ApiServer_err)
+	}
+
+	// Start console server if configured
+	var consoleServer *ui.ConsoleServer
+	if *s3opt.consolePort > 0 {
+		if *s3opt.consoleAdminKey == "" || *s3opt.consoleAdminSecret == "" {
+			glog.Warningf("Console port specified but admin credentials not provided. Console will not start.")
+		} else {
+			// Create S3Operations interface for console
+			s3Operations := s3api.NewS3Operations(s3ApiServer, *s3opt.consoleAdminKey, *s3opt.consoleAdminSecret)
+
+			consoleConfig := ui.ConsoleConfig{
+				Port:        *s3opt.consolePort,
+				AdminKey:    *s3opt.consoleAdminKey,
+				AdminSecret: *s3opt.consoleAdminSecret,
+			}
+
+			var err error
+			consoleServer, err = ui.NewConsoleServer(consoleConfig, s3Operations)
+			if err != nil {
+				glog.Fatalf("Console server startup error: %v", err)
+			}
+
+			// Start console in a separate goroutine
+			go func() {
+				ctx := context.Background()
+				if err := consoleServer.Start(ctx); err != nil {
+					glog.Errorf("Console server error: %v", err)
+				}
+			}()
+		}
 	}
 
 	if *s3opt.portGrpc == 0 {
